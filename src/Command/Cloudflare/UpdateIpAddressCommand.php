@@ -11,12 +11,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateIpAddressCommand extends Command
 {
+    /** @var string */
+    private $cloudflareApiKey;
+    /** @var DateTimeImmutable */
     private $requestTime;
 
-    public function __construct()
-    {
+    public function __construct(
+        string $cloudflareApiKey
+    ) {
         parent::__construct();
 
+        $this->cloudflareApiKey = $cloudflareApiKey;
         $this->requestTime = new DateTimeImmutable();
     }
 
