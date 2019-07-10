@@ -88,7 +88,7 @@ class UpdateIpAddressCommand extends Command
             $name
         );
 
-        $io->text(\json_encode($recordDetails));
+        $io->text((string) \json_encode($recordDetails));
 
         $io->newLine();
         $io->text('Endtime: ' . $this->requestTime->format('Y-m-d H:i:s'));
