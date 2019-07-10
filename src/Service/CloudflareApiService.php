@@ -36,7 +36,7 @@ class CloudflareApiService
      *
      * @return \stdClass
      */
-    public function getDNSRecordDetails(string $domain, string $type, string $name): \stdClass
+    public function getDNSRecordDetails(string $domain, string $type, string $name)
     {
         $zones = new Zones($this->adapter);
 
@@ -44,8 +44,9 @@ class CloudflareApiService
 
         $dns = new DNS($this->adapter);
 
-        $recordId = $dns->getRecordID($zoneId, $type, $name);
+        $recordId = $dns->getRecordID($zoneId, $type, $name . '.' . $domain);
 
+//        return $dns->listRecords($zoneId, $type, $name . '.' . $domain);
         return $dns->getRecordDetails($zoneId, $recordId);
     }
 
