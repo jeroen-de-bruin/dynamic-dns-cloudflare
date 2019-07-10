@@ -36,7 +36,7 @@ class CloudflareApiService
      *
      * @return \stdClass
      */
-    public function getDNSRecordDetails(string $domain, string $type, string $name)
+    public function getDNSRecordDetails(string $domain, string $type, string $name): \stdClass
     {
         $zones = new Zones($this->adapter);
 
