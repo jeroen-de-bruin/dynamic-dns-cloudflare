@@ -28,8 +28,8 @@ class UpdateIpAddressCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln('Starttijd: ' . $this->requestTime->format('Y-m-d H:i:s'));
+        $output->writeln('Starttime: ' . $this->requestTime->format('Y-m-d H:i:s'));
 
-        $output->writeln('Eindtijd: ' . $this->requestTime->format('Y-m-d H:i:s'));
+        $output->writeln('Endtime: ' . $this->requestTime->format('Y-m-d H:i:s'));
     }
 }
