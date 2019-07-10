@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command\Cloudflare;
 
+use App\Service\CloudflareApiService;
 use DateTimeImmutable;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,17 +12,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateIpAddressCommand extends Command
 {
-    /** @var string */
-    private $cloudflareApiKey;
+    /** @var CloudflareApiService */
+    private $apiService;
     /** @var DateTimeImmutable */
     private $requestTime;
 
     public function __construct(
-        string $cloudflareApiKey
+        CloudflareApiService $apiService
     ) {
         parent::__construct();
 
-        $this->cloudflareApiKey = $cloudflareApiKey;
+        $this->apiService = $apiService;
         $this->requestTime = new DateTimeImmutable();
     }
 
