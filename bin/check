@@ -1,0 +1,35 @@
+#!/bin/bash
+
+clear
+# echo $PWD
+
+bin/console cache:clear
+
+# PHPUnit
+# bin/load-test-fixtures
+bin/phpunit
+
+echo
+
+# phpstan analyse
+vendor/bin/phpstan analyse --memory-limit=512M
+
+echo
+
+# php code standaarden: dry-run en automatisch repareren
+vendor/bin/php-cs-fixer fix -v --allow-risky yes
+
+#echo
+
+# Vraagt als er migrations zijn of je ze wilt uitvoeren anders gaat hij gewoon door
+# bin/console doctrine:migrations:migrate
+
+# Controle op de mappings
+# bin/console doctrine:schema:validate
+
+echo
+
+# Show status of changed files
+git status
+
+echo
