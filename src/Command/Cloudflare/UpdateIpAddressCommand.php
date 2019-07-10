@@ -36,6 +36,13 @@ class UpdateIpAddressCommand extends Command
     {
         $output->writeln('Starttime: ' . $this->requestTime->format('Y-m-d H:i:s'));
 
+        $user = $this->apiService->getUser();
+
+        $output->writeln('User ID: ' . $user->getUserID());
+        $output->writeln('User Email: ' . $user->getUserEmail());
+        $output->writeln('User Details: ' . \json_encode($user->getUserDetails()));
+        $output->writeln('User Body: ' . $user->getBody());
+
         $output->writeln('Endtime: ' . $this->requestTime->format('Y-m-d H:i:s'));
     }
 }
