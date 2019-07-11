@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-class IpAddressService
+class IpechoNetIpAddressService implements IpAddressServiceInterface
 {
     private const PUBLIC_IP_ADDRESS_PROVIDER = 'https://ipecho.net/plain';
 
@@ -14,9 +14,14 @@ class IpAddressService
     public function getPublicIpAddress(): string
     {
         if ($this->publicIpAddress === null) {
-            $this->publicIpAddress = \trim((string) \file_get_contents(self::PUBLIC_IP_ADDRESS_PROVIDER));
+            $this->publicIpAddress = $this->parsePublicIpAddress();
         }
 
         return $this->publicIpAddress;
+    }
+
+    private function parsePublicIpAddress(): string
+    {
+        return \trim((string) \file_get_contents(self::PUBLIC_IP_ADDRESS_PROVIDER));
     }
 }

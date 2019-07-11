@@ -9,6 +9,7 @@ use Cloudflare\API\Auth\APIKey;
 use Cloudflare\API\Endpoints\DNS;
 use Cloudflare\API\Endpoints\User;
 use Cloudflare\API\Endpoints\Zones;
+use stdClass;
 
 class CloudflareApiService
 {
@@ -28,25 +29,23 @@ class CloudflareApiService
     }
 
     /**
-     * @param string $domain
-     * @param string $name
+     * @param string $completeName
      * @param string $type
      *
      * @throws \Cloudflare\API\Endpoints\EndpointException
      *
-     * @return \stdClass
+     * @return stdClass
      */
-    public function getDNSRecordDetails(string $domain, string $type, string $name)
+    public function getDNSRecordDetails(string $completeName, string $type): stdClass
     {
         $zones = new Zones($this->adapter);
 
-        $zoneId = $zones->getZoneID($domain);
+        $zoneId = $zones->getZoneID($this->getDomain($completeName));
 
         $dns = new DNS($this->adapter);
 
-        $recordId = $dns->getRecordID($zoneId, $type, $name . '.' . $domain);
+        $recordId = $dns->getRecordID($zoneId, $type, $completeName);
 
-//        return $dns->listRecords($zoneId, $type, $name . '.' . $domain);
         return $dns->getRecordDetails($zoneId, $recordId);
     }
 
@@ -56,5 +55,21 @@ class CloudflareApiService
     public function getUser(): User
     {
         return new User($this->adapter);
+    }
+
+    private function getDomain(string $completeName): string
+    {
+        $parts = \explode('.', $completeName);
+
+        \array_shift($parts);
+
+        return \implode('.', $parts);
+    }
+
+    private function getRecordName(string $completeName): string
+    {
+        $parts = \explode('.', $completeName);
+
+        return \trim((string) \array_shift($parts));
     }
 }

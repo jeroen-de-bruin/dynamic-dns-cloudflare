@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Command\Cloudflare;
 
 use App\Service\CloudflareApiService;
-use App\Service\IpAddressService;
+use App\Service\IpAddressServiceInterface;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -19,14 +18,14 @@ class UpdateIpAddressCommand extends Command
 {
     /** @var CloudflareApiService */
     private $apiService;
-    /** @var IpAddressService */
+    /** @var IpAddressServiceInterface */
     private $ipAddressService;
     /** @var DateTimeImmutable */
     private $requestTime;
 
     public function __construct(
         CloudflareApiService $apiService,
-        IpAddressService $ipAddressService
+        IpAddressServiceInterface $ipAddressService
     ) {
         parent::__construct();
 
@@ -39,7 +38,7 @@ class UpdateIpAddressCommand extends Command
     {
         $this->setName('jdd:cloudflare:updateipaddress')
             ->setDescription('Update IP address for record in Cloudflare.')
-            ->addArgument('domainname', InputArgument::REQUIRED, 'The domain record to modify.')
+            ->addOption('domainname', 'd', InputOption::VALUE_REQUIRED, 'The domain record to modify.')
             ->addOption('type', 't', InputOption::VALUE_REQUIRED, 'The type of record to use.')
         ;
     }
@@ -59,22 +58,10 @@ class UpdateIpAddressCommand extends Command
 
         $io->text('Starttime: ' . $this->requestTime->format('Y-m-d H:i:s'));
 
-        $domainnameArgument = $input->getArgument('domainname');
-        if (!\is_string($domainnameArgument)) {
-            throw new InvalidArgumentException('Domainname has to be a string');
-        }
-
-        $parts = \explode('.', $domainnameArgument);
-
-        $name = \trim((string) \array_shift($parts));
-        $domain = \implode('.', $parts);
-
-        $typeOption = $input->getOption('type');
-
-        $type = \strtoupper(\is_string($typeOption) ? $typeOption : 'TXT');
+        $name = $this->getRecordName($input);
+        $type = $this->getRecordType($input);
 
         $io->text([
-            'Domain:            ' . $domain,
             'Record:            ' . $name,
             'Type:              ' . $type,
             'Public IP Address: ' . $this->ipAddressService->getPublicIpAddress(),
@@ -82,16 +69,39 @@ class UpdateIpAddressCommand extends Command
 
         $io->newLine();
 
-        $recordDetails = $this->apiService->getDNSRecordDetails(
-            $domain,
-            $type,
-            $name
-        );
+        $recordDetails = $this->apiService->getDNSRecordDetails($name, $type);
 
         $io->text((string) \json_encode($recordDetails, JSON_PRETTY_PRINT));
 
         $io->newLine();
         $io->text('Endtime: ' . $this->requestTime->format('Y-m-d H:i:s'));
         $io->newLine();
+    }
+
+    private function getRecordName(InputInterface $input)
+    {
+        $domainnameArgument = $input->getOption('domainname');
+
+        if (!\is_string($domainnameArgument)) {
+            throw new InvalidArgumentException('`domainname` has to be a string');
+        }
+
+        return $domainnameArgument;
+    }
+
+    /**
+     * @param InputInterface $input
+     *
+     * @return string
+     */
+    protected function getRecordType(InputInterface $input): string
+    {
+        $typeOption = $input->getOption('type');
+
+        if (!\is_string($typeOption) || empty($typeOption)) {
+            throw new InvalidArgumentException('`type` has to be a string');
+        }
+
+        return \strtoupper($typeOption);
     }
 }
