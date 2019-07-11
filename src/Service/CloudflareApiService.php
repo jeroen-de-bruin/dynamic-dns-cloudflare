@@ -50,6 +50,34 @@ class CloudflareApiService
     }
 
     /**
+     * @param string $completeName
+     * @param string $type
+     * @param string $value
+     *
+     * @throws \Cloudflare\API\Endpoints\EndpointException
+     *
+     * @return stdClass
+     */
+    public function updateDNSRecordDetails(string $completeName, string $type, string $value): stdClass
+    {
+        $zones = new Zones($this->adapter);
+
+        $zoneId = $zones->getZoneID($this->getDomain($completeName));
+
+        $dns = new DNS($this->adapter);
+
+        $recordId = $dns->getRecordID($zoneId, $type, $completeName);
+
+        $data = [
+            'type' => $type,
+            'name' => $completeName,
+            'content' => $value,
+        ];
+
+        return $dns->updateRecordDetails($zoneId, $recordId, $data);
+    }
+
+    /**
      * @return User
      */
     public function getUser(): User

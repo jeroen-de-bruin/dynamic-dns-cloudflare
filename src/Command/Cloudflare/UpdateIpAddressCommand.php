@@ -69,7 +69,26 @@ class UpdateIpAddressCommand extends Command
 
         $io->newLine();
 
+        # Current value
         $recordDetails = $this->apiService->getDNSRecordDetails($name, $type);
+
+        $io->text((string) \json_encode($recordDetails, JSON_PRETTY_PRINT));
+
+        # Update
+        $response = $this->apiService->updateDNSRecordDetails(
+            $name,
+            $type,
+            $this->ipAddressService->getPublicIpAddress()
+        );
+
+        $io->newLine();
+
+        $io->text((string) \json_encode($response, JSON_PRETTY_PRINT));
+
+        # New value
+        $recordDetails = $this->apiService->getDNSRecordDetails($name, $type);
+
+        $io->newLine();
 
         $io->text((string) \json_encode($recordDetails, JSON_PRETTY_PRINT));
 
