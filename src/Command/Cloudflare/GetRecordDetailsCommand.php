@@ -17,7 +17,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class UpdateIpAddressCommand extends Command
+class GetRecordDetailsCommand extends Command
 {
     /** @var LoggerInterface */
     private $logger;
@@ -43,7 +43,7 @@ class UpdateIpAddressCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('jdd:cloudflare:updateipaddress')
+        $this->setName('jdd:cloudflare:getrecorddetails')
             ->setDescription('Update IP address for record in Cloudflare.')
             ->addOption('domainname', 'd', InputOption::VALUE_REQUIRED, 'The domain record to modify.')
             ->addOption('type', 't', InputOption::VALUE_REQUIRED, 'The type of record to use.')
@@ -72,15 +72,11 @@ class UpdateIpAddressCommand extends Command
         ];
 
         try {
-            $response = $this->apiService->updateDNSRecordDetails(
-                $name,
-                $type,
-                $this->ipAddressService->getPublicIpAddress()
-            );
+            $recordDetails = $this->apiService->getDNSRecordDetails($name, $type);
 
             $messages = \array_merge($messages, [
                 '',
-                (string) \json_encode($response, JSON_PRETTY_PRINT),
+                (string) \json_encode($recordDetails, JSON_PRETTY_PRINT),
             ]);
         } catch (ClientException $e) {
         }

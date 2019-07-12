@@ -94,10 +94,10 @@ class CloudflareApiService
         return \implode('.', $parts);
     }
 
-    private function getRecordName(string $completeName): string
-    {
-        $parts = \explode('.', $completeName);
-
-        return \trim((string) \array_shift($parts));
-    }
+//    private function getRecordName(string $completeName): string
+//    {
+//        $parts = \explode('.', $completeName);
+//
+//        return \trim((string) \array_shift($parts));
+//    }
 }
