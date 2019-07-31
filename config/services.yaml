@@ -33,8 +33,3 @@ services:
         arguments:
             $cloudflareApiKey: '%cloudflare_api_key%'
             $cloudflareUsername: '%cloudflare_username%'
-
-    swiftmailer.mailer.transport.postmark:
-        class: Postmark\Transport
-        arguments:
-            - '%env(POSTMARK_SERVER_TOKEN)%'

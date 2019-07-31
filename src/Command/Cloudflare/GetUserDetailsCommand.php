@@ -28,7 +28,7 @@ class GetUserDetailsCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('jdd:cloudflare:userdetails')
+        $this->setName('jdd:cloudflare:getuserdetails')
             ->setDescription('Get user details from Cloudflare.');
     }
 
