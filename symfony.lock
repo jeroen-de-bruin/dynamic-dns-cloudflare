@@ -224,7 +224,7 @@
         "version": "v4.3.2"
     },
     "symfony/monolog-bridge": {
-        "version": "v4.3.2"
+        "version": "v4.3.3"
     },
     "symfony/monolog-bundle": {
         "version": "3.3",
