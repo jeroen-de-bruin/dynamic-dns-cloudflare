@@ -1,5 +1,4 @@
 # dynamic-dns-cloudflare
-Update CloudFlare DNS record automatically with the ip address from the server.
 
 In order to provide public access to services located behind a non-fixed IP addess, an A record in CloudFlare needs to be updated periodically with the current IP address.
 
