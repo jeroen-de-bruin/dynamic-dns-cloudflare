@@ -44,7 +44,7 @@ class GetRecordDetailsCommand extends Command
     protected function configure(): void
     {
         $this->setName('jdd:cloudflare:getrecorddetails')
-            ->setDescription('Update IP address for record in Cloudflare.')
+            ->setDescription('Get the details of a record in Cloudflare.')
             ->addOption('domainname', 'd', InputOption::VALUE_REQUIRED, 'The domain record to modify.')
             ->addOption('type', 't', InputOption::VALUE_REQUIRED, 'The type of record to use.')
         ;
@@ -87,16 +87,16 @@ class GetRecordDetailsCommand extends Command
             '',
         ]);
 
-        if ($input->getOption('verbose')) {
-            $io = new SymfonyStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
-            if ($e instanceof Exception) {
-                $io->title('[ERROR] ' . $e->getCode());
-                $io->caution($e->getMessage());
-            } else {
-                $io->text($messages);
-            }
-        } elseif ($e instanceof Exception) {
+        if ($e instanceof Exception) {
+            $io->title('[ERROR] ' . $e->getCode());
+            $io->caution($e->getMessage());
+        } else {
+            $io->text($messages);
+        }
+
+        if ($e instanceof Exception) {
             $this->logger->critical('[ERROR] ' . $e->getCode(), [$e->getMessage()]);
         }
     }
