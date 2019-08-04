@@ -5,22 +5,20 @@ declare(strict_types=1);
 namespace App\Command\Cloudflare;
 
 use App\Service\CloudflareApiService;
+use App\Service\CommandlineOutputService;
 use App\Service\IpAddressServiceInterface;
 use DateTimeImmutable;
-use Exception;
 use GuzzleHttp\Exception\ClientException;
 use InvalidArgumentException;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class UpdateIpAddressCommand extends Command
 {
-    /** @var LoggerInterface */
-    private $logger;
+    /** @var CommandlineOutputService */
+    private $commandlineOutputService;
     /** @var CloudflareApiService */
     private $apiService;
     /** @var IpAddressServiceInterface */
@@ -29,13 +27,13 @@ class UpdateIpAddressCommand extends Command
     private $requestTime;
 
     public function __construct(
-        LoggerInterface $logger,
+        CommandlineOutputService $commandlineOutputService,
         CloudflareApiService $apiService,
         IpAddressServiceInterface $ipAddressService
     ) {
         parent::__construct();
 
-        $this->logger = $logger;
+        $this->commandlineOutputService = $commandlineOutputService;
         $this->apiService = $apiService;
         $this->ipAddressService = $ipAddressService;
         $this->requestTime = new DateTimeImmutable();
@@ -60,49 +58,35 @@ class UpdateIpAddressCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $e = null;
-        $name = $this->getRecordName($input);
-        $type = $this->getRecordType($input);
-
-        $messages = [
-            'Starttime:         ' . $this->requestTime->format('Y-m-d H:i:s'),
-            'Record:            ' . $name,
-            'Type:              ' . $type,
-            'Public IP Address: ' . $this->ipAddressService->getPublicIpAddress(),
-        ];
-
         try {
+            $name = $this->getRecordName($input);
+            $type = $this->getRecordType($input);
+
             $response = $this->apiService->updateDNSRecordDetails(
                 $name,
                 $type,
                 $this->ipAddressService->getPublicIpAddress()
             );
 
-            $messages = \array_merge($messages, [
+            $messages = [
+                'Starttime:         ' . $this->requestTime->format('Y-m-d H:i:s'),
+                'Record:            ' . $name,
+                'Type:              ' . $type,
+                'Public IP Address: ' . $this->ipAddressService->getPublicIpAddress(),
                 '',
                 (string) \json_encode($response, JSON_PRETTY_PRINT),
-            ]);
+            ];
         } catch (ClientException $e) {
         }
 
-        $messages = \array_merge($messages, [
-            '',
-            'Endtime:           ' . $this->requestTime->format('Y-m-d H:i:s'),
-            '',
-        ]);
-
-        if ($input->getOption('verbose')) {
-            $io = new SymfonyStyle($input, $output);
-
-            if ($e instanceof Exception) {
-                $io->title('[ERROR] ' . $e->getCode());
-                $io->caution($e->getMessage());
-            } else {
-                $io->text($messages);
-            }
-        } elseif ($e instanceof Exception) {
-            $this->logger->critical('[ERROR] ' . $e->getCode(), [$e->getMessage()]);
-        }
+        $this->commandlineOutputService->processOutput(
+            $this->requestTime,
+            $input,
+            $output,
+            $messages ?? [],
+            $e ?? null,
+            (bool) $input->getOption('verbose') ?: false
+        );
     }
 
     private function getRecordName(InputInterface $input)
