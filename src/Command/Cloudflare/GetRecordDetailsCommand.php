@@ -64,7 +64,7 @@ class GetRecordDetailsCommand extends Command
         $messages = [
             'Record: ' . $name,
             'Type: ' . $type,
-            'Public IP Address: ' . $this->ipAddressService->getPublicIpAddress(),
+            'Public IP Address: ' . $this->ipAddressService->getPublicIPv4Address(),
         ];
 
         try {

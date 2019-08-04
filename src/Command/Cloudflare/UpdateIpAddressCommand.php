@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Command\Cloudflare;
 
+use App\Exception\InvalidRecordTypeException;
 use App\Service\CloudflareApiService;
 use App\Service\CommandlineOutputService;
+use App\Service\IpAddressServiceException;
 use App\Service\IpAddressServiceInterface;
 use DateTimeImmutable;
 use GuzzleHttp\Exception\ClientException;
@@ -42,19 +44,15 @@ class UpdateIpAddressCommand extends Command
     protected function configure(): void
     {
         $this->setName('jdd:cloudflare:updateipaddress')
-            ->setDescription('Update IP address for record in Cloudflare.')
+            ->setDescription('Update IP address for an A or AAAA record in Cloudflare.')
             ->addOption('domainname', 'd', InputOption::VALUE_REQUIRED, 'The domain record to modify.')
             ->addOption('type', 't', InputOption::VALUE_REQUIRED, 'The type of record to use.')
         ;
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     *
+     * @throws InvalidRecordTypeException
      * @throws \Cloudflare\API\Endpoints\EndpointException
-     *
-     * @return int|void|null
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -62,20 +60,21 @@ class UpdateIpAddressCommand extends Command
             $name = $this->getRecordName($input);
             $type = $this->getRecordType($input);
 
-            $response = $this->apiService->updateDNSRecordDetails(
-                $name,
-                $type,
-                $this->ipAddressService->getPublicIpAddress()
-            );
+            $ipAddress = $type === 'AAAA'
+                ? $this->ipAddressService->getPublicIPv6Address()
+                : $this->ipAddressService->getPublicIPv4Address();
+
+            $response = $this->apiService->updateDNSRecordDetails($name, $type, $ipAddress);
 
             $messages = [
                 'Starttime:         ' . $this->requestTime->format('Y-m-d H:i:s'),
                 'Record:            ' . $name,
                 'Type:              ' . $type,
-                'Public IP Address: ' . $this->ipAddressService->getPublicIpAddress(),
+                'Public IP Address: ' . $this->ipAddressService->getPublicIPv4Address(),
                 '',
                 (string) \json_encode($response, JSON_PRETTY_PRINT),
             ];
+        } catch (IpAddressServiceException $e) {
         } catch (ClientException $e) {
         }
 
@@ -101,9 +100,7 @@ class UpdateIpAddressCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
-     *
-     * @return string
+     * @throws InvalidRecordTypeException
      */
     protected function getRecordType(InputInterface $input): string
     {
@@ -113,6 +110,12 @@ class UpdateIpAddressCommand extends Command
             throw new InvalidArgumentException('`type` has to be a string');
         }
 
-        return \strtoupper($typeOption);
+        $type = \strtoupper($typeOption);
+
+        if (!\in_array($type, ['A', 'AAAA'], true)) {
+            throw new InvalidRecordTypeException('Record type has to be A or AAAA');
+        }
+
+        return $type;
     }
 }

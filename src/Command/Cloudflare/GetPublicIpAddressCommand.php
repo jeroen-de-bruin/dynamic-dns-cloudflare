@@ -3,9 +3,9 @@
 namespace App\Command\Cloudflare;
 
 use App\Service\CommandlineOutputService;
+use App\Service\IpAddressServiceException;
 use App\Service\IpAddressServiceInterface;
 use DateTimeImmutable;
-use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -44,12 +44,12 @@ class GetPublicIpAddressCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try {
-            $ipAddress = $this->ipAddressService->getPublicIpAddress();
+            $ipAddress = $this->ipAddressService->getPublicIPv4Address();
 
             $messages = [
                 'Public IP Address: ' . $ipAddress,
             ];
-        } catch (Exception $e) {
+        } catch (IpAddressServiceException $e) {
         }
 
         $this->commandlineOutputService->processOutput(

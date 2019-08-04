@@ -6,5 +6,13 @@ namespace App\Service;
 
 interface IpAddressServiceInterface
 {
-    public function getPublicIpAddress(): string;
+    /**
+     * @throws IpAddressServiceException
+     */
+    public function getPublicIPv4Address(): string;
+
+    /**
+     * @throws IpAddressServiceException
+     */
+    public function getPublicIPv6Address(): string;
 }
