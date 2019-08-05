@@ -17,4 +17,4 @@ jobs:
 
         - stage: deploy
           script:
-              - ssh "$DEPLOY_SERVER"
+              - ssh -p "$DEPLOY_SERVER_PORT" "$DEPLOY_SERVER_USER@$DEPLOY_SERVER_ADDRESS"
