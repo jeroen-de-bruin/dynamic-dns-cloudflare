@@ -2,6 +2,9 @@ language: php
 php:
     - "7.3"
 
+addons:
+    ssh_known_hosts: "$DEPLOY_SERVER_ADDRESS:$DEPLOY_SERVER_PORT"
+
 jobs:
     include:
         - stage: test
