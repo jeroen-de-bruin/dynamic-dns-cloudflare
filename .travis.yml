@@ -21,3 +21,8 @@ jobs:
         - stage: deploy
           script:
               - ssh -p "$DEPLOY_SERVER_PORT" "$DEPLOY_SERVER_USER@$DEPLOY_SERVER_ADDRESS"
+
+stages:
+    - name: test
+    - name: deploy
+      if: branch = master
