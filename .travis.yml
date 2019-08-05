@@ -17,7 +17,7 @@ jobs:
 
         - stage: deploy
           script:
-              - echo "$DEPLOY_SERVER_PUBLIC_KEY" >> $HOME/.ssh/known_hosts
+              - echo "$DEPLOY_SERVER_KNOWN_HOSTS" >> $HOME/.ssh/known_hosts
               - ssh -p "$DEPLOY_SERVER_PORT" "$DEPLOY_SERVER_USER@$DEPLOY_SERVER_ADDRESS"
 
 stages:
