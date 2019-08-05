@@ -4,6 +4,9 @@ php:
 script:
     - echo 'Build starts'
     - echo 'Installing dependencies...'
-    - composer install
+    - composer install --no-ansi --no-progress --quiet
     - echo 'Checking build'
-    - bin/check
+    - bin/console cache:clear
+    - vendor/bin/phpstan analyse --level 7 --memory-limit=512M --no-progress
+    - vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --dry-run --stop-on-violation --allow-risky yes --using-cache=no
+    - bin/phpunit --coverage-text
