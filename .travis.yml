@@ -2,20 +2,19 @@ language: php
 php:
     - "7.3"
 
-cache: composer
+jobs:
+    include:
+        - stage: test
+          script:
+            - echo 'Build starts'
+            - echo 'Installing dependencies...'
+            - composer install --no-ansi --no-progress --quiet
+            - echo 'Checking build'
+            - bin/console cache:clear
+            - vendor/bin/phpstan analyse --level 7 --memory-limit=512M --no-progress
+            - vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --dry-run --stop-on-violation --allow-risky yes --using-cache=no
+            - bin/phpunit --coverage-text
 
-script:
-    - echo 'Build starts'
-    - echo 'Installing dependencies...'
-    - composer install --no-ansi --no-progress --quiet
-    - echo 'Checking build'
-    - bin/console cache:clear
-    - vendor/bin/phpstan analyse --level 7 --memory-limit=512M --no-progress
-    - vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --dry-run --stop-on-violation --allow-risky yes --using-cache=no
-    - bin/phpunit --coverage-text
-
-install
-    - composer install --no-ansi --no-progress --quiet
-
-after_success:
-    - ssh "$DEPLOY_SERVER"
+        - stage: deploy
+          script:
+              - ssh "$DEPLOY_SERVER"
