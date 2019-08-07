@@ -17,9 +17,10 @@ jobs:
 
         - stage: deploy
           script:
-              - echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_rsa && chmod 0600 $HOME/.ssh/id_rsa
-              - echo "$DEPLOY_SERVER_KNOWN_HOSTS" >> $HOME/.ssh/known_hosts
-              - ssh -p "$DEPLOY_SERVER_PORT" "$DEPLOY_SERVER_USER@$DEPLOY_SERVER_ADDRESS" 'ls -al && exit'
+              - echo $SSH_PRIVATE_KEY > $HOME/.ssh/id_rsa
+              - chmod 0600 $HOME/.ssh/id_rsa
+              - echo $DEPLOY_SERVER_KNOWN_HOSTS >> $HOME/.ssh/known_hosts
+              - ssh -p $DEPLOY_SERVER_PORT $DEPLOY_SERVER_USER@$DEPLOY_SERVER_ADDRESS 'ls -al && exit'
 
 stages:
     - name: test
